@@ -1,0 +1,15 @@
+.build/
+.dotnet10-releases.json
+.vs/
+*.user
+**/bin/
+**/obj/
+dist/
+/*.jpg
+/*.jpeg
+/*.png
+/docs/superpowers/
+/docs/github-settings.md
+/docs/gui-review-*.md
+.DS_Store
+/images/

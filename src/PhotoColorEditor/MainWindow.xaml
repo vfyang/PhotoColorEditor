@@ -1,0 +1,381 @@
+<Window x:Class="PhotoColorEditor.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:PhotoColorEditor" Title="照片颜色纠正器" Height="900" Width="1240"
+        MinWidth="440" MinHeight="420" WindowStartupLocation="CenterScreen" UseLayoutRounding="True" Icon="PhotoColorEditor.ico"
+        FontFamily="Microsoft YaHei UI, Segoe UI" FontSize="16" Loaded="WindowLoaded" Closing="WindowClosing"
+        AllowDrop="True" PreviewDragEnter="PreviewFileDrag" PreviewDragOver="PreviewFileDrag"
+        PreviewDragLeave="PreviewFileDragLeave" PreviewDrop="PreviewFileDrop"
+        Background="{DynamicResource Surface}" Foreground="{DynamicResource Ink}">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Background" Value="{DynamicResource Panel}" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonEdge}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="5">
+                            <ContentPresenter x:Name="ButtonLabel" RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonFrame" Property="BorderBrush" Value="{DynamicResource Accent}" /></Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonLabel" Property="RenderTransform">
+                                    <Setter.Value><TranslateTransform Y="1" /></Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonFrame" Property="BorderBrush" Value="{DynamicResource Ink}" /><Setter TargetName="ButtonFrame" Property="BorderThickness" Value="2" /></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonLabel" Property="Opacity" Value="0.68" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource Accent}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentInk}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="StepButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="AutomationProperties.Name" Value="{Binding Content, RelativeSource={RelativeSource Self}}" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate><TextBlock Text="{Binding}" TextAlignment="Center" TextWrapping="Wrap" /></DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ToolTip" Value="{DynamicResource StepTip}" />
+        </Style>
+        <Style x:Key="SliderRailButton" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton">
+                <Border Background="Transparent">
+                    <Border Height="8" VerticalAlignment="Center" Background="{TemplateBinding Background}" CornerRadius="4" />
+                </Border>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style TargetType="Slider">
+            <Setter Property="MinHeight" Value="46" />
+            <Setter Property="IsMoveToPointEnabled" Value="True" />
+            <Setter Property="TickFrequency" Value="0.05" />
+            <Setter Property="SmallChange" Value="0.05" />
+            <Setter Property="LargeChange" Value="0.1" />
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Slider">
+                <Border x:Name="SliderFrame" BorderBrush="Transparent" BorderThickness="2" CornerRadius="5" Padding="4">
+                    <Grid Background="Transparent">
+                        <Border Height="8" VerticalAlignment="Center" Background="{DynamicResource ButtonEdge}" CornerRadius="4" />
+                        <Track x:Name="PART_Track" VerticalAlignment="Center" Height="32">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource SliderRailButton}" Command="{x:Static Slider.DecreaseLarge}" Background="{DynamicResource Accent}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="28" Height="30">
+                                    <Thumb.Template><ControlTemplate TargetType="Thumb">
+                                        <Border Background="{DynamicResource Accent}" BorderBrush="{DynamicResource Ink}" BorderThickness="2" CornerRadius="6">
+                                            <Border Width="4" Height="13" Background="{DynamicResource AccentInk}" CornerRadius="2" />
+                                        </Border>
+                                    </ControlTemplate></Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource SliderRailButton}" Command="{x:Static Slider.IncreaseLarge}" Background="Transparent" />
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="SliderFrame" Property="BorderBrush" Value="{DynamicResource Ink}" /></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="SliderFrame" Property="Opacity" Value="0.5" /></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+            <EventSetter Event="ValueChanged" Handler="SliderChanged" />
+            <EventSetter Event="LostMouseCapture" Handler="SliderCaptureLost" />
+            <EventSetter Event="PreviewMouseLeftButtonUp" Handler="SliderReleased" />
+        </Style>
+        <Style TargetType="ScrollBar">
+            <Setter Property="MinWidth" Value="18" />
+            <Setter Property="MinHeight" Value="18" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Edge}" BorderThickness="1" Padding="2">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton x:Name="Back" Command="{x:Static ScrollBar.PageUpCommand}" Focusable="False">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="{DynamicResource MutedInk}" CornerRadius="4" /></ControlTemplate></Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton x:Name="Forward" Command="{x:Static ScrollBar.PageDownCommand}" Focusable="False">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
+                                <Setter TargetName="Back" Property="Command" Value="{x:Static ScrollBar.PageLeftCommand}" />
+                                <Setter TargetName="Forward" Property="Command" Value="{x:Static ScrollBar.PageRightCommand}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Control" Command="ApplicationCommands.Open" />
+        <KeyBinding Key="S" Modifiers="Control" Command="ApplicationCommands.Save" />
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="ApplicationCommands.SaveAs" />
+        <KeyBinding Key="Z" Modifiers="Control" Command="ApplicationCommands.Undo" />
+        <KeyBinding Key="Y" Modifiers="Control" Command="ApplicationCommands.Redo" />
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommand" CanExecute="OpenCanExecute" />
+        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveCommand" CanExecute="SaveCanExecute" />
+        <CommandBinding Command="ApplicationCommands.SaveAs" Executed="SaveAsCommand" CanExecute="PhotoCanExecute" />
+        <CommandBinding Command="ApplicationCommands.Undo" Executed="UndoCommand" CanExecute="UndoCanExecute" />
+        <CommandBinding Command="ApplicationCommands.Redo" Executed="RedoCommand" CanExecute="RedoCanExecute" />
+    </Window.CommandBindings>
+    <DockPanel Background="{DynamicResource Surface}">
+      <Border DockPanel.Dock="Top" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Edge}" BorderThickness="0,0,0,1">
+        <WrapPanel Margin="16,6,8,0">
+          <Menu x:Name="TopMenu" Margin="0,0,14,6" Padding="4,0" Height="44" VerticalContentAlignment="Center"
+                Background="{DynamicResource Panel}" Foreground="{DynamicResource Ink}">
+            <Menu.Resources>
+                <Style TargetType="MenuItem">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.MenuTextBrushKey}}" />
+                    <Style.Triggers>
+                        <Trigger Property="Role" Value="TopLevelHeader"><Setter Property="Foreground" Value="{DynamicResource Ink}" /></Trigger>
+                        <Trigger Property="Role" Value="TopLevelItem"><Setter Property="Foreground" Value="{DynamicResource Ink}" /></Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Menu.Resources>
+            <MenuItem Header="{DynamicResource File}">
+                <MenuItem Header="{DynamicResource Open}" Command="ApplicationCommands.Open" InputGestureText="Ctrl+O" />
+                <MenuItem x:Name="RecentMenu" Header="{DynamicResource Recent}" />
+                <MenuItem Header="{DynamicResource Samples}">
+                    <MenuItem Header="{DynamicResource WarmSample}" Tag="warm" Click="SampleClicked" />
+                    <MenuItem Header="{DynamicResource CoolSample}" Tag="cool" Click="SampleClicked" />
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="{DynamicResource Save}" Command="ApplicationCommands.Save" InputGestureText="Ctrl+S" />
+                <MenuItem Header="{DynamicResource SaveAs}" Command="ApplicationCommands.SaveAs" InputGestureText="Ctrl+Shift+S" />
+            </MenuItem>
+            <MenuItem Header="{DynamicResource Edit}">
+                <MenuItem Header="{DynamicResource Undo}" Command="ApplicationCommands.Undo" InputGestureText="Ctrl+Z" />
+                <MenuItem Header="{DynamicResource Redo}" Command="ApplicationCommands.Redo" InputGestureText="Ctrl+Y" />
+            </MenuItem>
+            <MenuItem Header="{DynamicResource Settings}">
+                <MenuItem Header="{DynamicResource Language}">
+                    <MenuItem x:Name="SystemLanguageMenu" Header="{DynamicResource SystemLanguage}" Click="LanguageClicked" Tag="system" IsCheckable="True" />
+                    <Separator />
+                    <MenuItem x:Name="ChineseMenu" Header="简体中文" Click="LanguageClicked" Tag="zh-Hans" IsCheckable="True" />
+                    <MenuItem x:Name="TraditionalChineseMenu" Header="繁體中文" Click="LanguageClicked" Tag="zh-Hant" IsCheckable="True" />
+                    <MenuItem x:Name="EnglishMenu" Header="English" Click="LanguageClicked" Tag="en" IsCheckable="True" />
+                </MenuItem>
+                <MenuItem Header="{DynamicResource Theme}">
+                    <MenuItem x:Name="LightThemeMenu" Header="{DynamicResource LightTheme}" IsCheckable="True" Tag="light" Click="ThemeClicked" />
+                    <MenuItem x:Name="DarkThemeMenu" Header="{DynamicResource DarkTheme}" IsCheckable="True" Tag="dark" Click="ThemeClicked" />
+                </MenuItem>
+                <MenuItem x:Name="LargeTextMenu" Header="{DynamicResource LargeText}" Click="LargeTextClicked" IsCheckable="True" />
+                <MenuItem Header="{DynamicResource RegisterOpenWith}" Click="RegisterOpenWithClicked" />
+            </MenuItem>
+            <MenuItem Header="{DynamicResource About}" Click="AboutClicked" />
+          </Menu>
+            <Button x:Name="OpenToolbarButton" Content="{DynamicResource Open}" Command="ApplicationCommands.Open" />
+            <Button Content="{DynamicResource Undo}" Command="ApplicationCommands.Undo" />
+            <Button Content="{DynamicResource Redo}" Command="ApplicationCommands.Redo" Margin="0,0,18,6" />
+            <Button Content="{DynamicResource Save}" Command="ApplicationCommands.Save" />
+            <Button Content="{DynamicResource SaveAs}" Command="ApplicationCommands.SaveAs" Style="{StaticResource Primary}" />
+        </WrapPanel>
+      </Border>
+        <Border DockPanel.Dock="Bottom" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource Edge}" Background="{DynamicResource Panel}">
+            <TextBlock x:Name="Status" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+        </Border>
+        <ScrollViewer x:Name="WorkspaceScroll" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+            <Grid x:Name="Workspace" Margin="16,8,16,16" SizeChanged="WorkspaceResized">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="AdjustColumn" Width="320" /></Grid.ColumnDefinitions>
+                <Grid.RowDefinitions><RowDefinition x:Name="PhotoRow" Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Border x:Name="PhotoPanel" Grid.Column="0" Margin="0,0,12,0" CornerRadius="8" Padding="10"
+                        Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Edge}" BorderThickness="1">
+                  <DockPanel>
+                    <WrapPanel x:Name="GeometryBar" DockPanel.Dock="Top" Visibility="Collapsed">
+                        <Button x:Name="CropButton" Content="{DynamicResource Crop}" Click="CropClicked" />
+                        <Button x:Name="RotateLeftButton" Content="{DynamicResource RotateLeft}" Tag="left" Click="RotateClicked" />
+                        <Button Content="{DynamicResource RotateRight}" Tag="right" Click="RotateClicked" />
+                        <Button x:Name="FineRotateButton" Content="{DynamicResource FineRotate}" Click="FineRotateClicked" Margin="0,0,16,6" />
+                        <Button x:Name="CancelCropButton" Content="{DynamicResource Cancel}" Click="CancelCropClicked" Visibility="Collapsed" />
+                        <Button x:Name="ResetOriginalButton" Click="ResetOriginalClicked" Content="{DynamicResource ResetOriginal}"
+                                ToolTip="{DynamicResource ResetOriginalTip}" IsEnabled="False" />
+                    </WrapPanel>
+                    <StackPanel x:Name="FineRotationBar" DockPanel.Dock="Top" Visibility="Collapsed" PreviewKeyDown="AngleKeyDown">
+                        <WrapPanel>
+                            <Label Target="{Binding ElementName=AngleInput}" Content="{DynamicResource AngleLabel}" Foreground="{DynamicResource Ink}"
+                                   VerticalAlignment="Center" Margin="0,0,6,6" Padding="0" />
+                            <Button x:Name="AngleLeftButton" Content="−0.5°" Click="AngleStepClicked" Tag="left" AutomationProperties.Name="{DynamicResource AngleLeft}" />
+                            <TextBox x:Name="AngleInput" Width="76" MinHeight="44" Margin="0,0,6,6" Padding="4" VerticalContentAlignment="Center"
+                                     TextAlignment="Center" Background="{DynamicResource Panel}" Foreground="{DynamicResource Ink}" CaretBrush="{DynamicResource Ink}"
+                                     AutomationProperties.Name="{DynamicResource AngleLabel}" TextChanged="AngleChanged" />
+                            <Button x:Name="AngleRightButton" Content="+0.5°" Click="AngleStepClicked" Tag="right" AutomationProperties.Name="{DynamicResource AngleRight}" />
+                            <Button x:Name="ApplyAngleButton" Content="{DynamicResource ApplyAngle}" Click="ApplyAngleClicked" Style="{StaticResource Primary}" />
+                            <Button x:Name="CancelAngleButton" Content="{DynamicResource Cancel}" Click="CancelAngleClicked" />
+                        </WrapPanel>
+                        <TextBlock x:Name="AngleHint" Text="{DynamicResource AngleHelp}" TextWrapping="Wrap" Foreground="{DynamicResource MutedInk}" Margin="0,0,0,6" />
+                    </StackPanel>
+                    <TextBlock x:Name="CropHint" DockPanel.Dock="Top" Text="{DynamicResource CropHint}" TextWrapping="Wrap" Margin="0,0,0,6" Visibility="Collapsed" />
+                    <WrapPanel x:Name="ZoomBar" DockPanel.Dock="Bottom" Margin="0,8,0,-6" Visibility="Collapsed">
+                        <Button x:Name="ZoomOut" Content="−" MinWidth="44" Click="ZoomClicked" ToolTip="{DynamicResource ZoomOut}" AutomationProperties.Name="{DynamicResource ZoomOut}" />
+                        <TextBlock x:Name="ZoomReadout" MinWidth="62" TextAlignment="Center" VerticalAlignment="Center" Margin="0,0,6,6"
+                                   Foreground="{DynamicResource MutedInk}" ToolTip="{DynamicResource ZoomLevel}" AutomationProperties.HelpText="{DynamicResource ZoomLevel}" />
+                        <Button x:Name="ZoomIn" Content="+" MinWidth="44" Click="ZoomClicked" ToolTip="{DynamicResource ZoomIn}" AutomationProperties.Name="{DynamicResource ZoomIn}" />
+                        <Button x:Name="FitPhoto" Content="{DynamicResource FitPhoto}" Click="FitClicked" />
+                        <Button x:Name="CenterPhoto" Content="{DynamicResource CenterPhoto}" Click="CenterClicked" />
+                        <TextBlock x:Name="PanHint" Text="{DynamicResource PanHelp}" VerticalAlignment="Center" Margin="2,0,4,6"
+                                   Foreground="{DynamicResource MutedInk}" Visibility="Collapsed" />
+                    </WrapPanel>
+                    <TextBlock x:Name="PickHint" DockPanel.Dock="Bottom" Margin="2,8,0,0" TextWrapping="Wrap" Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
+                    <Grid x:Name="PreviewStage" ClipToBounds="True" Background="{DynamicResource Stage}">
+                        <ScrollViewer x:Name="PhotoViewport" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
+                                      Focusable="False" SizeChanged="ViewportResized" ScrollChanged="ViewportScrolled" PreviewMouseWheel="ViewportWheel">
+                            <local:PhotoPreviewSurface x:Name="PhotoSurface" Background="Transparent" Focusable="True"
+                                      MouseLeftButtonDown="PhotoClicked" MouseLeftButtonUp="PhotoPanReleased" MouseMove="PhotoPanMoved"
+                                      LostMouseCapture="PhotoPanCaptureLost" KeyDown="PhotoKeyDown" AutomationProperties.Name="{DynamicResource PhotoPreview}">
+                                <Canvas IsHitTestVisible="False">
+                                    <Image x:Name="PreviewImage" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
+                                    <Grid x:Name="AngleGuides" Visibility="Collapsed">
+                                        <Grid.RowDefinitions><RowDefinition /><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
+                                        <Border Grid.Row="1" Grid.ColumnSpan="3" BorderThickness="0,1,0,0" BorderBrush="White" Opacity="0.8" />
+                                        <Border Grid.Row="2" Grid.ColumnSpan="3" BorderThickness="0,1,0,0" BorderBrush="White" Opacity="0.8" />
+                                        <Border Grid.Column="1" Grid.RowSpan="3" BorderThickness="1,0,0,0" BorderBrush="White" Opacity="0.8" />
+                                        <Border Grid.Column="2" Grid.RowSpan="3" BorderThickness="1,0,0,0" BorderBrush="White" Opacity="0.8" />
+                                    </Grid>
+                                    <Border x:Name="CropFrameOutline" BorderBrush="Black" BorderThickness="5" Visibility="Collapsed" />
+                                    <Border x:Name="CropFrame" BorderBrush="White" BorderThickness="2" Visibility="Collapsed" />
+                                    <Canvas x:Name="CropHandles" Visibility="Collapsed">
+                                        <Canvas.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Width" Value="18" />
+                                                <Setter Property="Height" Value="18" />
+                                                <Setter Property="Background" Value="White" />
+                                                <Setter Property="BorderBrush" Value="Black" />
+                                                <Setter Property="BorderThickness" Value="2" />
+                                                <Setter Property="CornerRadius" Value="3" />
+                                            </Style>
+                                        </Canvas.Resources>
+                                        <Border /><Border /><Border />
+                                        <Border /><Border />
+                                        <Border /><Border /><Border />
+                                    </Canvas>
+                                    <Ellipse x:Name="MarkerOutline" Width="22" Height="22" Stroke="Black" StrokeThickness="5" Visibility="Collapsed" />
+                                    <Ellipse x:Name="Marker" Width="22" Height="22" Stroke="White" StrokeThickness="2" Visibility="Collapsed" />
+                                </Canvas>
+                            </local:PhotoPreviewSurface>
+                        </ScrollViewer>
+                        <Border x:Name="PreviewBadge" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8" Padding="8,3" IsHitTestVisible="False"
+                                CornerRadius="4" Background="{DynamicResource Panel}">
+                            <TextBlock x:Name="PreviewLabel" />
+                        </Border>
+                        <Border x:Name="EmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16" MaxWidth="360"
+                                Background="{DynamicResource Panel}" Padding="22" CornerRadius="8">
+                            <StackPanel>
+                                <Image Source="PhotoColorEditor.ico" Width="36" Height="36" Margin="0,0,0,10" />
+                                <TextBlock Text="{DynamicResource EmptyPrompt}" TextAlignment="Center" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,12" />
+                                <Button Content="{DynamicResource Open}" Command="ApplicationCommands.Open" HorizontalAlignment="Center" Style="{StaticResource Primary}" Margin="0" />
+                                <Button x:Name="TrySampleButton" Content="{DynamicResource TrySample}" Tag="warm" Click="SampleClicked" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="DropOverlay" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Accent}"
+                                BorderThickness="4" Background="{DynamicResource Surface}">
+                            <TextBlock Text="{DynamicResource DropHere}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        </Border>
+                    </Grid>
+                  </DockPanel>
+                </Border>
+                <Border x:Name="AdjustCard" Grid.Column="1" VerticalAlignment="Top" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Edge}" BorderThickness="1"
+                        Padding="12" CornerRadius="8">
+                  <ScrollViewer x:Name="AdjustScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <StackPanel x:Name="AdjustPanel" Margin="0,0,0,4" IsEnabled="False">
+                        <TextBlock Text="{DynamicResource Quick}" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <Button x:Name="AutoEnhanceButton" Content="{DynamicResource AutoOptimize}" Tag="optimize" Click="PresetClicked" Style="{StaticResource Primary}" />
+                        <UniformGrid Columns="2" Margin="0,0,0,8">
+                            <Button Content="{DynamicResource AutoBalance}" Tag="balance" Click="PresetClicked" Style="{StaticResource StepButton}" ToolTip="{DynamicResource AutoBalance}" />
+                            <Button x:Name="AutoLevelsButton" Content="{DynamicResource AutoLevels}" Tag="levels" Click="PresetClicked" Style="{StaticResource StepButton}" ToolTip="{DynamicResource AutoLevelsTip}" />
+                        </UniformGrid>
+                        <StackPanel x:Name="AutoValues" Margin="0,0,6,8" Visibility="Collapsed">
+                            <TextBlock x:Name="ExposureReadout" TextWrapping="Wrap" Foreground="{DynamicResource MutedInk}" />
+                            <TextBlock x:Name="BalanceReadout" TextWrapping="Wrap" Foreground="{DynamicResource MutedInk}" />
+                        </StackPanel>
+                        <UniformGrid Columns="2">
+                            <Button x:Name="BrightenButton" Content="{DynamicResource Brighten}" Tag="bright" Click="PresetClicked" Style="{StaticResource StepButton}" />
+                            <Button x:Name="VividButton" Content="{DynamicResource Vivid}" Tag="vivid" Click="PresetClicked" Style="{StaticResource StepButton}" />
+                            <Button x:Name="WarmerButton" Content="{DynamicResource Warm}" Tag="warm" Click="PresetClicked" Style="{StaticResource StepButton}" />
+                            <Button x:Name="CoolerButton" Content="{DynamicResource Cool}" Tag="cool" Click="PresetClicked" Style="{StaticResource StepButton}" />
+                            <Button x:Name="SoftLightButton" Content="{DynamicResource SoftLight}" Tag="soft-light" Click="PresetClicked"
+                                    Style="{StaticResource StepButton}" ToolTip="{DynamicResource SoftLightTip}" />
+                            <Button x:Name="SharpenButton" Content="{DynamicResource Sharpen}" Tag="sharpen" Click="PresetClicked"
+                                    Style="{StaticResource StepButton}" ToolTip="{DynamicResource SharpenTip}" />
+                        </UniformGrid>
+                        <Button x:Name="PickButton" Content="{DynamicResource Pick}" Click="PickClicked" Margin="0,6,6,6" />
+                        <TextBlock Text="{DynamicResource LightHistogram}" FontWeight="SemiBold" Margin="0,2,0,4" />
+                        <Canvas x:Name="LightHistogram" Height="60" ClipToBounds="True" SizeChanged="LightHistogramResized"
+                                Background="{DynamicResource Surface}" />
+                        <WrapPanel Margin="0,4,0,10">
+                            <TextBlock Text="{DynamicResource HistogramBefore}" Foreground="{DynamicResource MutedInk}" Margin="0,0,10,0" />
+                            <TextBlock Text="{DynamicResource HistogramCurrent}" Foreground="{DynamicResource Accent}" />
+                        </WrapPanel>
+                        <Expander x:Name="FineTuneExpander" Header="{DynamicResource FineTune}">
+                            <StackPanel Margin="6,8,6,0">
+                                <TextBlock Text="{DynamicResource Shadows}" />
+                                <Slider x:Name="ShadowsSlider" Minimum="-1" Maximum="1" AutomationProperties.Name="{DynamicResource Shadows}" />
+                                <TextBlock Text="{DynamicResource Highlights}" />
+                                <Slider x:Name="HighlightsSlider" Minimum="-1" Maximum="1" AutomationProperties.Name="{DynamicResource Highlights}" />
+                                <TextBlock Text="{DynamicResource Brightness}" />
+                                <Slider x:Name="ExposureSlider" Minimum="-1" Maximum="1" AutomationProperties.Name="{DynamicResource Brightness}" />
+                                <TextBlock Text="{DynamicResource Warmth}" />
+                                <Slider x:Name="WarmthSlider" Minimum="-1" Maximum="1" AutomationProperties.Name="{DynamicResource Warmth}" />
+                                <TextBlock Text="{DynamicResource Tint}" />
+                                <Slider x:Name="TintSlider" Minimum="-1" Maximum="1" AutomationProperties.Name="{DynamicResource Tint}" />
+                                <TextBlock Text="{DynamicResource Saturation}" />
+                                <Slider x:Name="SaturationSlider" Minimum="0" Maximum="2" Value="1" AutomationProperties.Name="{DynamicResource Saturation}" />
+                                <Expander x:Name="Advanced" Header="{DynamicResource CurvesAndHistogram}" Expanded="AdvancedExpanded" Margin="0,8,0,0">
+                                    <StackPanel Margin="4,8,0,0">
+                                        <TextBlock Text="{DynamicResource Histogram}" />
+                                        <Canvas x:Name="Histogram" Height="65" ClipToBounds="True" Margin="0,4,0,10" SizeChanged="HistogramResized"
+                                                Background="{DynamicResource Surface}" />
+                                        <ComboBox x:Name="CurveChannel" SelectedIndex="0" SelectionChanged="CurveChannelChanged" MinHeight="36"
+                                                  AutomationProperties.Name="{DynamicResource CurveChannel}">
+                                            <ComboBoxItem Content="{DynamicResource Master}" /><ComboBoxItem Content="{DynamicResource Red}" />
+                                            <ComboBoxItem Content="{DynamicResource Green}" /><ComboBoxItem Content="{DynamicResource Blue}" />
+                                        </ComboBox>
+                                        <local:CurveEditorSurface x:Name="CurveCanvas" Height="140" Margin="0,8,0,4" Focusable="True" ClipToBounds="True"
+                                                AutomationProperties.Name="{DynamicResource CurveHelp}" Background="{DynamicResource Surface}"
+                                                SizeChanged="CurveResized" MouseLeftButtonDown="CurvePressed" MouseMove="CurveMoved" MouseLeftButtonUp="CurveReleased"
+                                                LostMouseCapture="CurveCaptureLost" KeyDown="CurveKeyDown" />
+                                        <TextBlock Text="{DynamicResource CurveHelp}" TextWrapping="Wrap" Margin="0,0,0,6" />
+                                        <Button Content="{DynamicResource ResetCurve}" Click="ResetCurveClicked" />
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                  </ScrollViewer>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
