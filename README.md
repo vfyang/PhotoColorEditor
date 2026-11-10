@@ -2,11 +2,13 @@
 
 English · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-Hant.md)
 
-**You’ll need a 64-bit Windows 11 PC (x64).** To check, open **Start → Settings → System → About**. Look for **Windows 11** under **Windows specifications** and **x64-based processor** next to **System type**. [Microsoft help](https://support.microsoft.com/en-us/windows/experience/find-information-about-your-windows-device)
+**For 64-bit Windows PCs with an x64 processor.** This beta was tested on Windows 11. It may also run on Windows 10, where app compatibility is still unverified. [Microsoft’s Windows compatibility information](https://learn.microsoft.com/en-us/dotnet/core/install/windows#supported-versions)
+
+To check your PC, open **Start → Settings → System → About**. Look for your version under **Windows specifications** and **x64-based processor** next to **System type**. [Microsoft help](https://support.microsoft.com/en-us/windows/experience/find-information-about-your-windows-device)
 
 ## Download and open the app
 
-1. **[Download Photo Color Editor for Windows 11 (ZIP)](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**.
+1. **[Download Photo Color Editor for Windows (ZIP)](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**.
 2. Open **File Explorer → Downloads**. Right-click the downloaded ZIP file, choose **Extract All…**, then click **Extract**. [Microsoft help with ZIP files](https://support.microsoft.com/en-us/windows/experience/storage-filemanagement/zip-and-unzip-files)
 3. Open the new folder and double-click **PhotoColorEditor.exe**. Windows may display it as **PhotoColorEditor**.
 
@@ -35,7 +37,7 @@ The download includes everything the app needs. To use it again, open the same f
 - **Photo preview.** Zoom, fit, center, or drag a zoomed photo to pan. Hold Ctrl while scrolling to zoom.
 - **Appearance.** Enable **Settings → Large text**, or choose a light or dark theme. The app follows the Windows display language by default and supports English, Simplified Chinese, and Traditional Chinese.
 
-On first launch, the app registers its per-user Windows **Open with** command. In File Explorer, right-click a photo and choose **Show more options** to find it. **Settings → Add to Windows Open with** refreshes the registration for the app's current path and language.
+On first launch, the app adds a command to the menu that appears when you right-click a photo in File Explorer. On Windows 11, choose **Show more options** to find it. **Settings → Add to Windows Open with** updates the menu entry if you move the app.
 
 ## Help and information
 
