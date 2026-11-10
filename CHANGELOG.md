@@ -2,7 +2,7 @@
 
 ## 0.7.0-beta
 
-Photo Color Editor runs offline on Windows 11 x64. The self-contained `PhotoColorEditor.exe` opens and saves JPG, JPEG, and PNG files. See the [README](README.md) for build and test commands.
+Photo Color Editor is an offline app for 64-bit Windows PCs with x64 processors. This beta was tested on Windows 11 and may also run on Windows 10. It opens and saves JPG, JPEG, and PNG files. See the [download and setup guide](README.md).
 
 - **Color correction.** Auto Enhance, automatic white balance, and white-balance sampling. The adjustment panel shows the exposure and RGB white-balance gains in use.
 - **Tone and detail.** Auto Levels, a live before-and-after luminance histogram, RGB curves, manual shadow and highlight controls, and cumulative one-click adjustments. Soft Light and Sharpen each have five independent levels.

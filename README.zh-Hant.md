@@ -2,11 +2,13 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · 繁體中文
 
-**適用於 Windows 11 64 位元電腦（x64）。** 如需確認，請開啟「開始 → 設定 → 系統 → 關於」，在「Windows 規格」確認是 Windows 11，再查看「系統類型」是否顯示「x64 型處理器」。[Microsoft 說明](https://support.microsoft.com/zh-tw/windows/experience/find-information-about-your-windows-device)
+**適用於使用 x64 處理器的 64 位元 Windows 電腦。** 此測試版已在 Windows 11 上驗證。Windows 10 使用者也可試用，軟體在該系統上的相容性有待驗證。[Microsoft 相容性說明](https://learn.microsoft.com/zh-tw/dotnet/core/install/windows#supported-versions)
+
+如需確認電腦的系統版本和處理器，請開啟「開始 → 設定 → 系統 → 關於」，查看「Windows 規格」，並確認「系統類型」顯示「x64 型處理器」。[Microsoft 說明](https://support.microsoft.com/zh-tw/windows/experience/find-information-about-your-windows-device)
 
 ## 下載並開啟軟體
 
-1. **[下載 Windows 11 版照片顏色校正器（ZIP）](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**。
+1. **[下載 Windows 版照片顏色校正器（ZIP）](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**。
 2. 開啟「檔案總管 → 下載」。以滑鼠右鍵按一下下載的 ZIP 檔案，選擇「全部解壓」，再按「解壓縮」。[Microsoft 解壓縮說明](https://support.microsoft.com/zh-tw/windows/experience/storage-filemanagement/zip-and-unzip-files)
 3. 開啟解壓後出現的新資料夾，按兩下 **PhotoColorEditor.exe**。檔名也可能顯示為 **PhotoColorEditor**。
 
@@ -35,7 +37,7 @@
 - **檢視照片。** 可放大、縮小、符合視窗或置中。放大後拖曳照片，即可檢視其他位置。
 - **語言和主題。** 在「設定」中切換簡體中文、繁體中文或 English，也可選擇淺色或深色主題。軟體預設跟隨 Windows 顯示語言。
 
-在 Windows 檔案總管中，也可以用滑鼠右鍵按一下照片，選擇「顯示更多選項 → 使用照片顏色校正器開啟」。若選單中找不到這一項，可在軟體中選擇「設定 → 加入 Windows 開啟方式」。
+在 Windows 檔案總管中，也可以用滑鼠右鍵按一下照片，選擇「使用照片顏色校正器開啟」。Windows 11 使用者可先按「顯示更多選項」。移動軟體後，可在軟體中選擇「設定 → 加入 Windows 開啟方式」更新這個選單項目。
 
 ## 說明與資訊
 
