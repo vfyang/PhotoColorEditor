@@ -1,18 +1,28 @@
 # Photo Color Editor · 0.7 Beta
 
-English · [简体中文](README.zh-CN.md)
+English · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-Hant.md)
 
-Photo Color Editor is an offline Windows photo editor from **SyncPort.ai**, designed with older adults in mind. Large text, high-contrast controls, and clearly labeled one-click adjustments make it easy to start with a photo and see what changed.
+**You’ll need a 64-bit Windows 11 PC (x64).** To check, open **Start → Settings → System → About**. Look for **Windows 11** under **Windows specifications** and **x64-based processor** next to **System type**. [Microsoft help](https://support.microsoft.com/en-us/windows/experience/find-information-about-your-windows-device)
 
-[Download 0.7 Beta for Windows 11 x64](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
+## Download and open the app
+
+1. **[Download Photo Color Editor for Windows 11 (ZIP)](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**.
+2. Open **File Explorer → Downloads**. Right-click the downloaded ZIP file, choose **Extract All…**, then click **Extract**. [Microsoft help with ZIP files](https://support.microsoft.com/en-us/windows/experience/storage-filemanagement/zip-and-unzip-files)
+3. Open the new folder and double-click **PhotoColorEditor.exe**. Windows may display it as **PhotoColorEditor**.
+
+The download includes everything the app needs. To use it again, open the same folder and double-click the app. You can edit photos offline after downloading.
+
+**Want larger text?** In the app, choose **Settings → Large text**. Photo Color Editor is designed with older adults in mind, with high-contrast controls and clearly labeled one-click adjustments.
 
 ![Photo Color Editor with a sailboat painting on the left and one-click adjustments, white balance, and a live histogram on the right](docs/images/photo-color-editor-sample-2-en.png)
 
 *Actual editor screenshot with sample-2.jpg open and Auto Enhance applied.*
 
-## Getting started
+[See the original and edited sample photos side by side](samples/README.md)
 
-1. On Windows 11 x64, launch `PhotoColorEditor.exe`. Open a JPG, JPEG, or PNG, drop one onto the window, or choose **File → Sample photos**. You can also download the [warm](samples/warm-mountain.png) and [cool](samples/cool-mountain.png) samples.
+## Edit your first photo
+
+1. Click **Open photo** and pick a JPG, JPEG, or PNG. To practice, choose **File → Sample photos**.
 2. Start with **Auto enhance** or **Fix color cast**. If you know an area should be white or gray, choose **Pick white balance point** and select a patch with visible detail.
 3. Refine the result with the quick adjustments or **Fine tune**. **Reset to original** brings back the full photo so you can start again. Undo and redo support up to 21 steps per window.
 4. Choose **Save as** to keep a separate copy. The suggested filename skips existing copies. **Save** asks before replacing the current file.
@@ -27,21 +37,8 @@ Photo Color Editor is an offline Windows photo editor from **SyncPort.ai**, desi
 
 On first launch, the app registers its per-user Windows **Open with** command. In File Explorer, right-click a photo and choose **Show more options** to find it. **Settings → Add to Windows Open with** refreshes the registration for the app's current path and language.
 
-## Build and test
+## Help and information
 
-Use the .NET 10 SDK and PowerShell 7 on Windows.
-
-```powershell
-dotnet publish src/PhotoColorEditor -c Release -r win-x64 --self-contained true -p:PublishProfile=Windows-x64 -o dist
-dotnet run --project tests/PhotoColorEditor.Tests -- --ui
-& tests/Test-SingleFile.ps1 -Exe dist/PhotoColorEditor.exe
-```
-
-The tests generate their own photo fixtures. The publish command creates a self-contained `dist/PhotoColorEditor.exe`.
-
-## Project
-
-- [0.7 Beta release notes](CHANGELOG.md)
-- [Sample images](samples/README.md)
+- [0.7 Beta release notes](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
 - [MIT license](LICENSE)
 - SyncPort.ai · [contact@syncport.ai](mailto:contact@syncport.ai)
