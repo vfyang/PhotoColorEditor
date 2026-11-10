@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>PhotoColorEditor</AssemblyName>
+    <AssemblyTitle>Photo Color Editor</AssemblyTitle>
+    <Product>Photo Color Editor</Product>
+    <Company>SyncPort.ai</Company>
+    <Copyright>Copyright © 2026 SyncPort.ai</Copyright>
+    <Version>0.7.0-beta</Version>
+    <ApplicationIcon>PhotoColorEditor.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <DebugType>embedded</DebugType>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PhotoColorEditor.Tests" />
+    <Resource Include="PhotoColorEditor.ico" />
+    <AssemblyMetadata Include="DisplayVersion" Value="0.7 Beta" />
+  </ItemGroup>
+</Project>
