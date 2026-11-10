@@ -4,6 +4,8 @@
 
 SyncPort.ai 开发的离线 Windows 照片编辑器。界面为长辈设计，提供大字号、高对比度控件、清晰的中文标签和一键调整。打开照片后就能开始编辑，想重新试一次时可以恢复原图，最多可逐步撤销或重做 21 次。
 
+[下载 Windows 11 64 位 0.7 Beta](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
+
 ![照片颜色纠正器的大字号界面，左侧显示帆船画作，右侧显示一键调整、白平衡和亮度直方图](docs/images/photo-color-editor-sample-2-zh.png)
 
 *实际软件截图。已打开 sample-2.jpg，并启用大字号和自动优化。*

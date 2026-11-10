@@ -4,6 +4,8 @@ English · [简体中文](README.zh-CN.md)
 
 Photo Color Editor is an offline Windows photo editor from **SyncPort.ai**, designed with older adults in mind. Large text, high-contrast controls, and clearly labeled one-click adjustments make it easy to start with a photo and see what changed.
 
+[Download 0.7 Beta for Windows 11 x64](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
+
 ![Photo Color Editor with a sailboat painting on the left and one-click adjustments, white balance, and a live histogram on the right](docs/images/photo-color-editor-sample-2-en.png)
 
 *Actual editor screenshot with sample-2.jpg open and Auto Enhance applied.*
