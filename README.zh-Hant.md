@@ -1,4 +1,4 @@
-# 照片顏色校正器 · 0.7 Beta
+# 照片顏色校正器 · 0.7.1 Beta
 
 [English](README.md) · [简体中文](README.zh-CN.md) · 繁體中文
 
@@ -8,7 +8,7 @@
 
 ## 下載並開啟軟體
 
-1. **[下載 Windows 版照片顏色校正器（ZIP）](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**。
+1. **[下載 Windows 版照片顏色校正器（ZIP）](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.1-beta/PhotoColorEditor-0.7.1-beta-win-x64.zip)**。
 2. 開啟「檔案總管 → 下載」。以滑鼠右鍵按一下下載的 ZIP 檔案，選擇「全部解壓」，再按「解壓縮」。[Microsoft 解壓縮說明](https://support.microsoft.com/zh-tw/windows/experience/storage-filemanagement/zip-and-unzip-files)
 3. 開啟解壓後出現的新資料夾，按兩下 **PhotoColorEditor.exe**。檔名也可能顯示為 **PhotoColorEditor**。
 
@@ -49,6 +49,6 @@
 
 ## 說明與資訊
 
-- [0.7 Beta 版本說明](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
+- [0.7.1 Beta 版本說明](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.1-beta)
 - [MIT 授權](LICENSE)
 - SyncPort.ai · [contact@syncport.ai](mailto:contact@syncport.ai)

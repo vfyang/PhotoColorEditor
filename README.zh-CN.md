@@ -1,4 +1,4 @@
-# 照片颜色纠正器 · 0.7 Beta
+# 照片颜色纠正器 · 0.7.1 Beta
 
 [English](README.md) · 简体中文 · [繁體中文](README.zh-Hant.md)
 
@@ -8,7 +8,7 @@
 
 ## 下载并打开软件
 
-1. **[下载 Windows 版照片颜色纠正器（ZIP）](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**。
+1. **[下载 Windows 版照片颜色纠正器（ZIP）](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.1-beta/PhotoColorEditor-0.7.1-beta-win-x64.zip)**。
 2. 打开「文件资源管理器 → 下载」。右键单击刚下载的 ZIP 文件，选择「全部提取」，再点「提取」。[微软解压帮助](https://support.microsoft.com/zh-cn/windows/experience/storage-filemanagement/zip-and-unzip-files)
 3. 打开解压后出现的新文件夹，双击 **PhotoColorEditor.exe**。文件名也可能显示为 **PhotoColorEditor**。
 
@@ -49,6 +49,6 @@
 
 ## 帮助与信息
 
-- [0.7 Beta 发布说明](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
+- [0.7.1 Beta 发布说明](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.1-beta)
 - [MIT 许可证](LICENSE)
 - SyncPort.ai · [contact@syncport.ai](mailto:contact@syncport.ai)

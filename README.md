@@ -1,4 +1,4 @@
-# Photo Color Editor · 0.7 Beta
+# Photo Color Editor · 0.7.1 Beta
 
 English · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-Hant.md)
 
@@ -8,7 +8,7 @@ To check your PC, open **Start → Settings → System → About**. Look for you
 
 ## Download and open the app
 
-1. **[Download Photo Color Editor for Windows (ZIP)](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.0-beta/PhotoColorEditor-0.7.0-beta-win-x64.zip)**.
+1. **[Download Photo Color Editor for Windows (ZIP)](https://github.com/vfyang/PhotoColorEditor/releases/download/v0.7.1-beta/PhotoColorEditor-0.7.1-beta-win-x64.zip)**.
 2. Open **File Explorer → Downloads**. Right-click the downloaded ZIP file, choose **Extract All…**, then click **Extract**. [Microsoft help with ZIP files](https://support.microsoft.com/en-us/windows/experience/storage-filemanagement/zip-and-unzip-files)
 3. Open the new folder and double-click **PhotoColorEditor.exe**. Windows may display it as **PhotoColorEditor**.
 
@@ -49,6 +49,6 @@ Preferences are stored in `%LOCALAPPDATA%/PhotoColorEditor/settings.json`. If a 
 
 ## Help and information
 
-- [0.7 Beta release notes](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)
+- [0.7.1 Beta release notes](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.1-beta)
 - [MIT license](LICENSE)
 - SyncPort.ai · [contact@syncport.ai](mailto:contact@syncport.ai)
