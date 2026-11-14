@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.7.1-beta
+
+- Bundle .NET 10.0.15 with the Windows release.
+- Make recent-photo history opt-in; remove legacy saved photo paths on upgrade.
+- Add clear-history and remember-history controls in all three languages, with errors reported if settings cannot be saved.
+- Document local storage, metadata removal, and the scope of the privacy controls.
+- EXE publisher signing remains deferred.
+
 ## 0.7.0-beta
 
 Photo Color Editor is an offline app for 64-bit Windows PCs with x64 processors. This beta was tested on Windows 11 and may also run on Windows 10. It opens and saves JPG, JPEG, and PNG files. See the [download and setup guide](README.md).

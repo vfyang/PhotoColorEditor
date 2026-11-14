@@ -31,9 +31,16 @@ try {
 
     $nativeCore = Get-ChildItem -LiteralPath $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR -Filter 'coreclr.dll' -Recurse | Select-Object -First 1
     $nativeWpf = Get-ChildItem -LiteralPath $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR -Filter 'wpfgfx_cor3.dll' -Recurse | Select-Object -First 1
-    if (!$nativeCore -or !$nativeWpf) { throw 'Bundled runtime files were not extracted.' }
+    if (!$nativeWpf) { throw 'Bundled WPF runtime files were not extracted.' }
+    # Official single-file hosts can link CoreCLR into the EXE instead of extracting coreclr.dll.
+    $externalRuntime = @($app.Modules | Where-Object {
+        $_.ModuleName -in @('coreclr.dll', 'clr.dll') -and
+        !$_.FileName.StartsWith($testRoot.FullName + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)
+    })
+    if ($externalRuntime.Count) { throw 'The EXE loaded an external runtime instead of its bundled runtime.' }
     if (@(Get-ChildItem -LiteralPath $emptyFolder.FullName -Force).Count -ne 1) { throw 'The EXE folder contains unexpected companion files.' }
-    "PASS: standalone launch with '$($app.MainWindowTitle)', runtime $($nativeCore.VersionInfo.FileVersion)"
+    $runtimeDescription = if ($nativeCore) { $nativeCore.VersionInfo.FileVersion } else { 'statically linked into the EXE' }
+    "PASS: standalone launch with '$($app.MainWindowTitle)', runtime $runtimeDescription"
     "SHA-256: $((Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash)"
 } finally {
     if ($app -and !$app.HasExited) {

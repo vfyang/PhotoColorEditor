@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         Closed += (_, _) => SystemParameters.StaticPropertyChanged -= SystemPaletteChanged;
         ApplyPreferences();
         RefreshRecentMenu();
+        if (preferences.HistoryCleanupFailed) SetStatus("PrivacySaveFailure");
     }
 
     private bool Dirty => history.Current != saved;
@@ -65,6 +66,7 @@ public partial class MainWindow : Window
         TraditionalChineseMenu.IsChecked = preferences.Language == AppLanguage.Traditional;
         EnglishMenu.IsChecked = preferences.Language == AppLanguage.English;
         LargeTextMenu.IsChecked = preferences.LargeText;
+        RememberRecentPhotosMenu.IsChecked = preferences.RememberRecentPhotos;
         LightThemeMenu.IsChecked = !preferences.DarkTheme;
         DarkThemeMenu.IsChecked = preferences.DarkTheme;
         if (picking) Announce(PickHint, T("PickHelp"));
@@ -75,7 +77,7 @@ public partial class MainWindow : Window
     {
         preferences = preferences with { Language = (string)((MenuItem)sender).Tag };
         ApplyPreferences();
-        preferences.Save(settingsPath);
+        SavePreferences();
     }
 
     private void RegisterOpenWithClicked(object sender, RoutedEventArgs e) =>
@@ -86,14 +88,14 @@ public partial class MainWindow : Window
         preferences = preferences with { DarkTheme = ((MenuItem)sender).Tag as string == "dark" };
         ApplyPalette();
         ApplyPreferences();
-        preferences.Save(settingsPath);
+        SavePreferences();
     }
 
     private void LargeTextClicked(object sender, RoutedEventArgs e)
     {
         preferences = preferences with { LargeText = LargeTextMenu.IsChecked };
         ApplyPreferences();
-        preferences.Save(settingsPath);
+        SavePreferences();
     }
 
     private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -222,7 +224,7 @@ public partial class MainWindow : Window
         sampleKey = null;
         path = openedPath = Path.GetFullPath(target);
         preferences = preferences.WithRecentPhoto(target);
-        preferences.Save(settingsPath);
+        SavePreferences();
         RefreshRecentMenu();
         statusKey = "Opened";
         statusArgs = [Path.GetFileName(target)];

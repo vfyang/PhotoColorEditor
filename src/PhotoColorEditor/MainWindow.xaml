@@ -192,6 +192,10 @@
                     <MenuItem x:Name="DarkThemeMenu" Header="{DynamicResource DarkTheme}" IsCheckable="True" Tag="dark" Click="ThemeClicked" />
                 </MenuItem>
                 <MenuItem x:Name="LargeTextMenu" Header="{DynamicResource LargeText}" Click="LargeTextClicked" IsCheckable="True" />
+                <Separator />
+                <MenuItem x:Name="RememberRecentPhotosMenu" Header="{DynamicResource RememberRecentPhotos}" IsCheckable="True" Click="RememberRecentPhotosClicked" />
+                <MenuItem x:Name="ClearRecentPhotosMenu" Header="{DynamicResource ClearRecentPhotos}" Click="ClearRecentPhotosClicked" />
+                <Separator />
                 <MenuItem Header="{DynamicResource RegisterOpenWith}" Click="RegisterOpenWithClicked" />
             </MenuItem>
             <MenuItem Header="{DynamicResource About}" Click="AboutClicked" />

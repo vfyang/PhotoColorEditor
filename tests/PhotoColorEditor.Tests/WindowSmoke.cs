@@ -45,7 +45,7 @@ internal static class WindowSmoke
                     var about = window.CreateAboutWindow();
                     var lines = ((StackPanel)about.Content).Children.OfType<TextBlock>().ToArray();
                     var links = lines.SelectMany(line => line.Inlines.OfType<System.Windows.Documents.Hyperlink>()).Select(link => link.NavigateUri.AbsoluteUri);
-                    if (!about.Title.Contains(title, StringComparison.Ordinal) || !lines.Any(line => line.Text.Contains("0.7 Beta")) ||
+                    if (!about.Title.Contains(title, StringComparison.Ordinal) || !lines.Any(line => line.Text.Contains("0.7.1 Beta")) ||
                         !lines.Any(line => line.Text == "SyncPort.ai") || !links.SequenceEqual(new[] { "https://github.com/vfyang/PhotoColorEditor", "mailto:contact@syncport.ai" }))
                         throw new InvalidOperationException("About must show the localized title, release version, publisher, repository and contact.");
                     about.Close();
@@ -56,6 +56,10 @@ internal static class WindowSmoke
                 if (MainWindow.DroppedPhoto(fileDrop) != first || MainWindow.DroppedPhoto(new DataObject(DataFormats.FileDrop, new[] { first, second })) is not null)
                     throw new InvalidOperationException("File drop must accept one supported photo at a time.");
                 await CheckSampleWorkspace(window);
+                var remember = (MenuItem)window.FindName("RememberRecentPhotosMenu");
+                if (remember.IsChecked) throw new InvalidOperationException("Photo history must be off by default.");
+                remember.IsChecked = true;
+                remember.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent, remember));
                 await CheckWindow(window, first, .12, .05);
                 window.Width = 700;
                 await CheckWindow(window, second, .95, .60, drop: true);
@@ -66,6 +70,24 @@ internal static class WindowSmoke
                 var firstPhoto = (MenuItem)recent.Items[1];
                 firstPhoto.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent, firstPhoto));
                 await Until(window, () => window.Title.Contains(Path.GetFileName(first), StringComparison.Ordinal));
+                var clear = (MenuItem)window.FindName("ClearRecentPhotosMenu");
+                clear.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent, clear));
+                if (Preferences.Load(settings).RecentPhotos is not { Length: 0 } || clear.IsEnabled || !remember.IsChecked)
+                    throw new InvalidOperationException("Clear history must persist immediately and preserve opt-in.");
+                await window.LoadPhotoAsync(second);
+                using (var locked = File.Open(settings, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    remember.IsChecked = false;
+                    remember.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent, remember));
+                    if (!remember.IsChecked || !Preferences.Load(settings).RememberRecentPhotos)
+                        throw new InvalidOperationException("A failed privacy update must not pretend that history was disabled.");
+                }
+                remember.IsChecked = false;
+                remember.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent, remember));
+                await window.LoadPhotoAsync(first);
+                if (Preferences.Load(settings).RememberRecentPhotos || Preferences.Load(settings).RecentPhotos is not { Length: 0 })
+                    throw new InvalidOperationException("Disabling history must remove saved entries and stop recording opened photos.");
+                if (!File.Exists(first) || !File.Exists(second)) throw new InvalidOperationException("History controls must never delete photos.");
                 window.Close();
             }
             catch (Exception error) { failure = error; }

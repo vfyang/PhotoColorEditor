@@ -10,7 +10,7 @@
     <Product>Photo Color Editor</Product>
     <Company>SyncPort.ai</Company>
     <Copyright>Copyright © 2026 SyncPort.ai</Copyright>
-    <Version>0.7.0-beta</Version>
+    <Version>0.7.1-beta</Version>
     <ApplicationIcon>PhotoColorEditor.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <DebugType>embedded</DebugType>
@@ -19,6 +19,6 @@
   <ItemGroup>
     <InternalsVisibleTo Include="PhotoColorEditor.Tests" />
     <Resource Include="PhotoColorEditor.ico" />
-    <AssemblyMetadata Include="DisplayVersion" Value="0.7 Beta" />
+    <AssemblyMetadata Include="DisplayVersion" Value="0.7.1 Beta" />
   </ItemGroup>
 </Project>

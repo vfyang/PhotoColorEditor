@@ -39,6 +39,14 @@ The download includes everything the app needs. To use it again, open the same f
 
 On first launch, the app adds a command to the menu that appears when you right-click a photo in File Explorer. On Windows 11, choose **Show more options** to find it. **Settings → Add to Windows Open with** updates the menu entry if you move the app.
 
+## Privacy
+
+Photos are processed on your computer. The app does not upload photos or send analytics. Exported JPG/PNG files do not copy the original photo metadata, such as GPS location.
+
+Recent-photo history is off by default. **Settings → Remember recent photos** opts in to storing the last 10 full photo paths on this Windows account. **Settings → Clear recent photos** removes that list without deleting photos. Turning remembering off also clears the list. On upgrade, previously saved history is removed unless you have explicitly enabled the new setting.
+
+Preferences are stored in `%LOCALAPPDATA%/PhotoColorEditor/settings.json`. If a privacy setting cannot be saved, the app displays an error. These controls cover this app's history; Windows and cloud-sync services may maintain their own records. About links open your browser or email app only when clicked.
+
 ## Help and information
 
 - [0.7 Beta release notes](https://github.com/vfyang/PhotoColorEditor/releases/tag/v0.7.0-beta)

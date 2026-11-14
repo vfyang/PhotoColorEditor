@@ -1,6 +1,9 @@
 using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PhotoColorEditor;
 
@@ -18,6 +21,13 @@ internal static class Strings
             ["File"] = ("文件", "檔案", "File"), ["Edit"] = ("编辑", "編輯", "Edit"), ["Settings"] = ("设置", "設定", "Settings"),
             ["Theme"] = ("主题", "主題", "Theme"), ["LightTheme"] = ("浅色", "淺色", "Light"), ["DarkTheme"] = ("深色", "深色", "Dark"),
             ["Recent"] = ("最近打开", "最近開啟", "Recent photos"), ["NoRecent"] = ("还没有最近打开的照片", "沒有最近開啟的照片", "No recent photos"),
+            ["RememberRecentPhotos"] = ("记住最近打开的照片", "記住最近開啟的照片", "Remember recent photos"),
+            ["ClearRecentPhotos"] = ("清除最近照片记录", "清除最近照片記錄", "Clear recent photos"),
+            ["RecentHistoryOff"] = ("未启用最近照片记录", "未啟用最近照片記錄", "Recent-photo history is off"),
+            ["RecentHistoryCleared"] = ("已清除最近照片记录。照片文件未被删除。", "已清除最近照片記錄。照片檔案未被刪除。", "Recent-photo history cleared. Your photos have not been deleted."),
+            ["RecentHistoryDisabled"] = ("已关闭并清除最近照片记录。", "已關閉並清除最近照片記錄。", "Recent-photo history turned off and cleared."),
+            ["RecentHistoryEnabled"] = ("将仅在此电脑上记住最近打开的 10 张照片的位置。", "將僅在此電腦上記住最近開啟的 10 張照片的位置。", "The last 10 photo locations will be remembered on this computer."),
+            ["PrivacySaveFailure"] = ("无法保存隐私设置或清除已保存的记录。请检查设置文件夹的写入权限后重试。", "無法儲存隱私設定或清除已儲存的記錄。請檢查設定資料夾的寫入權限後重試。", "Could not save privacy settings or clear stored history. Check that the settings folder is writable and try again."),
             ["RecentMissing"] = ("找不到 {0}。它可能已被移动或删除。", "找不到 {0}。它可能已被移動或刪除。", "Could not find {0}. It may have been moved or deleted."),
             ["DropHere"] = ("松开鼠标打开照片", "放開滑鼠以開啟照片", "Release to open photo"),
             ["DropSingle"] = ("请一次拖入一张 JPG 或 PNG 照片。", "請一次拖入一張 JPG 或 PNG 照片。", "Drop one JPG or PNG photo at a time."),
@@ -120,15 +130,31 @@ internal static class Strings
     }
 }
 
-internal sealed record Preferences(bool LargeText = false, string[]? RecentPhotos = null, string Language = AppLanguage.System, bool DarkTheme = false)
+internal sealed record Preferences(bool LargeText = false, string[]? RecentPhotos = null, string Language = AppLanguage.System, bool DarkTheme = false,
+    bool RememberRecentPhotos = false, string HistoryRevision = "")
 {
+    [JsonIgnore] public bool HistoryCleanupFailed { get; init; }
+    [JsonIgnore] private bool HistoryChanged { get; init; }
+    [JsonIgnore] private bool HistoryPreferenceChanged { get; init; }
     private static readonly StringComparer PathComparer = StringComparer.OrdinalIgnoreCase;
     private static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PhotoColorEditor", "settings.json");
 
     public Preferences WithRecentPhoto(string path) => this with
     {
-        RecentPhotos = new[] { Path.GetFullPath(path) }.Concat(RecentPhotos ?? []).Distinct(PathComparer).Take(10).ToArray()
+        RecentPhotos = RememberRecentPhotos
+            ? new[] { Path.GetFullPath(path) }.Concat(RecentPhotos ?? []).Distinct(PathComparer).Take(10).ToArray() : []
+    };
+
+    public Preferences ClearRecentPhotos() => this with
+    {
+        RecentPhotos = [], HistoryRevision = Guid.NewGuid().ToString("N"), HistoryChanged = true, HistoryPreferenceChanged = false
+    };
+
+    public Preferences WithRememberRecentPhotos(bool remember) => this with
+    {
+        RememberRecentPhotos = remember, RecentPhotos = [],
+        HistoryRevision = Guid.NewGuid().ToString("N"), HistoryChanged = true, HistoryPreferenceChanged = true
     };
 
     public Preferences WithoutRecentPhoto(string path) => this with
@@ -138,31 +164,76 @@ internal sealed record Preferences(bool LargeText = false, string[]? RecentPhoto
 
     public static Preferences Load(string? settingsPath = null)
     {
-        try
+        string target = settingsPath ?? FilePath;
+        return Locked(target, () =>
         {
-            using var json = JsonDocument.Parse(File.ReadAllText(settingsPath ?? FilePath));
+            if (!File.Exists(target)) return new Preferences();
+            using var json = JsonDocument.Parse(File.ReadAllText(target));
             var value = json.RootElement.Deserialize<Preferences>() ?? new();
             string language = AppLanguage.Normalize(value.Language);
             if (json.RootElement.ValueKind == JsonValueKind.Object && !json.RootElement.TryGetProperty("Language", out _) &&
                 json.RootElement.TryGetProperty("English", out var oldEnglish) && oldEnglish.ValueKind == JsonValueKind.True)
                 language = AppLanguage.English;
-            return value with { Language = language, RecentPhotos = value.RecentPhotos?.Where(path => !string.IsNullOrWhiteSpace(path))
-                .Distinct(PathComparer).Take(10).ToArray() };
-        }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException) { return new(); }
+            var normalized = value with { Language = language, RecentPhotos = value.RememberRecentPhotos
+                ? value.RecentPhotos?.Where(path => !string.IsNullOrWhiteSpace(path)).Distinct(PathComparer).Take(10).ToArray() : [] };
+            if (!normalized.RememberRecentPhotos && value.RecentPhotos is { Length: > 0 })
+            {
+                normalized = normalized.ClearRecentPhotos() with { HistoryChanged = false };
+                if (!normalized.Write(target)) normalized = normalized with { HistoryCleanupFailed = true };
+            }
+            return normalized;
+        }, new Preferences { HistoryCleanupFailed = true });
     }
 
-    public void Save(string? settingsPath = null)
+    public bool Save(string? settingsPath = null)
     {
         string target = settingsPath ?? FilePath;
+        return Locked(target, () =>
+        {
+            var value = this;
+            Preferences? latest = null;
+            try { latest = File.Exists(target) ? JsonSerializer.Deserialize<Preferences>(File.ReadAllText(target)) : null; }
+            catch (JsonException)
+            {
+                // Recover damaged settings without restoring an old window's private history.
+                if (!HistoryChanged) value = value.WithRememberRecentPhotos(false);
+            }
+            if (HistoryChanged && !HistoryPreferenceChanged && latest is not null)
+                value = value with { RememberRecentPhotos = latest.RememberRecentPhotos };
+            // An older window must not restore history cleared or disabled by another window.
+            if (!HistoryChanged && latest is not null && latest.HistoryRevision != HistoryRevision)
+                value = value with { RememberRecentPhotos = latest.RememberRecentPhotos,
+                    RecentPhotos = latest.RecentPhotos, HistoryRevision = latest.HistoryRevision };
+            return value.Write(target);
+        }, false);
+    }
+
+    private static T Locked<T>(string target, Func<T> operation, T failure)
+    {
+        string key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(Path.GetFullPath(target).ToUpperInvariant())));
+        bool acquired = false;
+        using var mutex = new Mutex(false, @"Local\PhotoColorEditor.Settings." + key);
+        try
+        {
+            try { acquired = mutex.WaitOne(TimeSpan.FromSeconds(2)); }
+            catch (AbandonedMutexException) { acquired = true; }
+            return acquired ? operation() : failure;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or JsonException) { return failure; }
+        finally { if (acquired) mutex.ReleaseMutex(); }
+    }
+
+    private bool Write(string target)
+    {
         string temporary = target + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-            File.WriteAllText(temporary, JsonSerializer.Serialize(this));
+            File.WriteAllText(temporary, JsonSerializer.Serialize(RememberRecentPhotos ? this : this with { RecentPhotos = [] }));
             File.Move(temporary, target, overwrite: true);
+            return true;
         }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { return false; }
         finally
         {
             try { File.Delete(temporary); }

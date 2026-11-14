@@ -36,7 +36,8 @@ internal static class Program
         CheckCopyNames();
         CheckLanguage();
         CheckGeometry();
-        var prefs = new Preferences();
+        CheckRecentPhotoPrivacy();
+        var prefs = new Preferences(RememberRecentPhotos: true);
         for (int index = 0; index < 12; index++) prefs = prefs.WithRecentPhoto($@"C:\Photos\{index}.jpg");
         prefs = prefs.WithRecentPhoto(@"c:\photos\7.JPG");
         Require(prefs.RecentPhotos is { Length: 10 } recent && recent[0].EndsWith("7.JPG") &&
@@ -44,6 +45,60 @@ internal static class Program
             !recent.Any(path => Path.GetFileName(path) == "1.jpg"), "Recent photos are bounded, newest first and deduplicated.");
         Console.WriteLine("PASS: both fixtures, neutral sampling, automatic correction, export, and undo history.");
         if (desktop) WindowSmoke.Run(paths[0], paths[1]);
+    }
+
+    private static void CheckRecentPhotoPrivacy()
+    {
+        var folder = Directory.CreateTempSubdirectory("photo-editor-privacy-");
+        string settings = Path.Combine(folder.FullName, "settings.json");
+        try
+        {
+            var defaults = new Preferences().WithRecentPhoto(@"C:\Private\sensitive.jpg");
+            defaults.Save(settings);
+            Require(!File.ReadAllText(settings).Contains("sensitive.jpg"), "Photo history must be opt-in for new users.");
+            File.WriteAllText(settings, """{"LargeText":true,"Language":"en","RecentPhotos":["C:\\Private\\legacy.jpg"]}""");
+            var migrated = Preferences.Load(settings);
+            Require(migrated.RecentPhotos is not { Length: > 0 } && migrated.LargeText && migrated.Language == "en",
+                "Legacy preferences must discard photo paths while retaining appearance settings.");
+            Require(!File.ReadAllText(settings).Contains("legacy.jpg"), "Migration must remove legacy paths from disk.");
+            var optedIn = migrated.WithRememberRecentPhotos(true).WithRecentPhoto(@"C:\Private\chosen.jpg");
+            Require(optedIn.Save(settings) && Preferences.Load(settings).RememberRecentPhotos &&
+                Preferences.Load(settings).RecentPhotos is { Length: 1 }, "Explicit opt-in must survive restart and retain recent photos.");
+            Require(optedIn.ClearRecentPhotos().Save(settings) && Preferences.Load(settings).RememberRecentPhotos &&
+                Preferences.Load(settings).RecentPhotos is { Length: 0 }, "Clearing must remove paths without disabling opt-in.");
+            var disabled = optedIn.WithRememberRecentPhotos(false).WithRecentPhoto(@"C:\Private\later.jpg");
+            Require(disabled.Save(settings) && !Preferences.Load(settings).RememberRecentPhotos &&
+                !File.ReadAllText(settings).Contains("Private"), "Disabling history must remove existing and future paths from disk.");
+            File.WriteAllText(settings, """{"RecentPhotos":["C:\\Private\\locked.jpg"]}""");
+            using (var locked = File.Open(settings, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var failedMigration = Preferences.Load(settings);
+                Require(failedMigration.HistoryCleanupFailed && failedMigration.RecentPhotos is { Length: 0 },
+                    "Failed disk cleanup must be reported without exposing legacy entries in the menu.");
+                Require(!failedMigration.Save(settings), "A failed settings write must not report success.");
+            }
+            Require(!Preferences.Load(settings).HistoryCleanupFailed && !File.ReadAllText(settings).Contains("locked.jpg"),
+                "A later successful load must retry legacy cleanup.");
+            var firstWindow = Preferences.Load(settings).WithRememberRecentPhotos(true).WithRecentPhoto(@"C:\Private\before-clear.jpg");
+            Require(firstWindow.Save(settings), "Enable history for the concurrent-window check.");
+            var staleWindow = Preferences.Load(settings);
+            Require(firstWindow.ClearRecentPhotos().Save(settings), "Clear history from the first window.");
+            Require((staleWindow with { DarkTheme = true }).Save(settings) && Preferences.Load(settings).RecentPhotos is { Length: 0 },
+                "A stale window changing appearance must not resurrect cleared photo paths.");
+            Require(Preferences.Load(settings).WithRememberRecentPhotos(false).Save(settings), "Disable history from the first window.");
+            Require(staleWindow.ClearRecentPhotos().Save(settings) && !Preferences.Load(settings).RememberRecentPhotos,
+                "Clearing from a stale window must not turn history back on.");
+            Require(staleWindow.WithRecentPhoto(@"C:\Private\after-disable.jpg").Save(settings) &&
+                !Preferences.Load(settings).RememberRecentPhotos && !File.ReadAllText(settings).Contains("Private"),
+                "A stale window opening a photo must respect a newer decision to disable history.");
+            File.WriteAllText(settings, "{\"RecentPhotos\":[");
+            Require(Preferences.Load(settings).ClearRecentPhotos().Save(settings) && !Preferences.Load(settings).HistoryCleanupFailed,
+                "Clear history must recover malformed settings without retaining a private backup.");
+            File.WriteAllText(settings, "{\"RecentPhotos\":[");
+            Require(staleWindow.Save(settings) && !Preferences.Load(settings).RememberRecentPhotos &&
+                Preferences.Load(settings).RecentPhotos is { Length: 0 }, "Automatic recovery must not revive stale history.");
+        }
+        finally { folder.Delete(recursive: true); }
     }
 
     private static void CheckPhoto(string path, double neutralX, double neutralY, double colorX, double colorY)

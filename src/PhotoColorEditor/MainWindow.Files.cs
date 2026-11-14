@@ -40,10 +40,11 @@ public partial class MainWindow
     {
         RecentMenu.Items.Clear();
         var files = preferences.RecentPhotos ?? [];
+        ClearRecentPhotosMenu.IsEnabled = files.Length > 0 || preferences.HistoryCleanupFailed;
         if (files.Length == 0)
         {
             var empty = new MenuItem { IsEnabled = false };
-            empty.SetResourceReference(HeaderedItemsControl.HeaderProperty, "NoRecent");
+            empty.SetResourceReference(HeaderedItemsControl.HeaderProperty, preferences.RememberRecentPhotos ? "NoRecent" : "RecentHistoryOff");
             RecentMenu.Items.Add(empty);
             return;
         }
@@ -61,6 +62,38 @@ public partial class MainWindow
             entry.Click += RecentClicked;
             RecentMenu.Items.Add(entry);
         }
+    }
+
+    private void RememberRecentPhotosClicked(object sender, RoutedEventArgs e)
+    {
+        bool remember = RememberRecentPhotosMenu.IsChecked;
+        SaveHistoryPreference(preferences.WithRememberRecentPhotos(remember), remember ? "RecentHistoryEnabled" : "RecentHistoryDisabled");
+    }
+
+    private void ClearRecentPhotosClicked(object sender, RoutedEventArgs e) =>
+        SaveHistoryPreference(preferences.ClearRecentPhotos(), "RecentHistoryCleared");
+
+    private void SaveHistoryPreference(Preferences candidate, string success)
+    {
+        candidate = candidate with { HistoryCleanupFailed = false };
+        if (!candidate.Save(settingsPath))
+        {
+            RememberRecentPhotosMenu.IsChecked = preferences.RememberRecentPhotos;
+            SetStatus("PrivacySaveFailure");
+            return;
+        }
+        preferences = Preferences.Load(settingsPath);
+        RememberRecentPhotosMenu.IsChecked = preferences.RememberRecentPhotos;
+        RefreshRecentMenu();
+        SetStatus(success);
+    }
+
+    private void SavePreferences()
+    {
+        if (!preferences.Save(settingsPath)) return;
+        preferences = Preferences.Load(settingsPath);
+        RememberRecentPhotosMenu.IsChecked = preferences.RememberRecentPhotos;
+        RefreshRecentMenu();
     }
 
     private async void RecentClicked(object sender, RoutedEventArgs e) =>
@@ -114,7 +147,7 @@ public partial class MainWindow
         catch (Exception error) when (recent && error is FileNotFoundException or DirectoryNotFoundException)
         {
             preferences = preferences.WithoutRecentPhoto(target);
-            preferences.Save(settingsPath);
+            SavePreferences();
             RefreshRecentMenu();
             return T("RecentMissing", name);
         }
